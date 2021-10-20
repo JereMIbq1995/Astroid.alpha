@@ -154,6 +154,9 @@ class Actor(pygame.Rect):
         """
         super().update(super().left + self._vx, super().top + self._vy, super().width, super().height)
     
+    def rotate(self):
+        self._rotation += self._rotation_vel
+        
     # # In case the hit box needs to be updated
     # def update_hitbox(self, image : pygame.Surface):
     #     super().width = image.get_width()

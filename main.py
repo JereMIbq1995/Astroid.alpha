@@ -7,11 +7,11 @@ from genie.script.action import Action
 
 from astroid.script.DrawFrameAction import DrawFrameAction
 from astroid.script.HandleInputAction import HandleInputAction
-from astroid.script.MoveBodiesAction import MoveBodiesAction
+from astroid.script.MoveActorsAction import MoveActorsAction
 from astroid.script.SpawnAstroidsAction import SpawnAstroidsAction
 from genie.services.PygamePhysicsService import PygamePhysicsService
 
-W_SIZE = (500, 700)
+W_SIZE = (1000, 700)
 START_POSITION = 200, 250
 SHIP_WIDTH = 40
 SHIP_LENGTH = 55
@@ -42,7 +42,7 @@ def main():
     handle_input = HandleInputAction(1, PygameKeyboardService())
 
     # Create update actions
-    move_bodies = MoveBodiesAction(1, PygamePhysicsService())
+    move_bodies = MoveActorsAction(1, PygamePhysicsService())
     spawn_astroid = SpawnAstroidsAction(1, W_SIZE)
 
     # Create output actions

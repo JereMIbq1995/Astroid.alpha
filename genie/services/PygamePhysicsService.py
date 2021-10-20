@@ -6,6 +6,10 @@ class PygamePhysicsService:
         if not pygame.get_init():
             pygame.init()
 
+    def rotate_actors(self, actors : list):
+        for actor in actors:
+            actor.rotate()
+
     def move_actors(self, actors : list):
         for actor in actors:
             actor.move_with_vel()

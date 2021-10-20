@@ -91,7 +91,7 @@ class PygameScreenService:
             lerp: linear interpolation
         """
         for actor in actors:
-            position = actor.get_top_left()
+            actor_topleft = actor.get_top_left()
             image_path = actor.get_path()
             image : pygame.Surface = None
 
@@ -105,7 +105,12 @@ class PygameScreenService:
                     pygame.transform.scale(image, (actor.get_width(), actor.get_height())), 
                     actor.get_rotation())
             
-            self._window.blit(transformed_image, position)
+            offset_x = (transformed_image.get_width() - actor.get_width()) / 2
+            offset_y = (transformed_image.get_height() - actor.get_height()) / 2
+
+            image_topleft = (actor_topleft[0] - offset_x, actor_topleft[1] - offset_y)
+            self._window.blit(transformed_image, image_topleft)
+            # pygame.draw.rect(self._window, (0,0,0), actor, width = 5)
 
         
         # pygame.display.update()
