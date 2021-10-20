@@ -30,5 +30,3 @@ class HandleInputAction(InputAction):
                     actor.set_vx(0)
                 if not keys_state[keys.UP] and not keys_state[keys.DOWN]:
                     actor.set_vy(0)
-                
-                print(actor.get_position())
