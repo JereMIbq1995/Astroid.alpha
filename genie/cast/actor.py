@@ -14,10 +14,10 @@ class Actor(pygame.Rect):
             _vy : the vertical velocity
             _height : 
     """
-    
-    @overload
     def __init__(self, path : str,
                     scale : float = 1,
+                    width : int = 0,
+                    height : int = 0,
 
                     x : float = 0, 
                     y : float = 0,
@@ -26,54 +26,36 @@ class Actor(pygame.Rect):
                     vy : float = 0,
 
                     rotation : float = 0,
-                    rotation_vel : float = 0):
+                    rotation_vel : float = 0,
+                    player_controlled : bool = False):
         """
             Initialize the actor using the image and
-            a scaling factor
+            a scaling factor, or width and height
         """
 
         self._path = path
+        self._scale = scale
 
         self._vx = vx
         self._vy = vy
 
         self._rotation = rotation
         self._rotation_vel = rotation_vel
+        self._player_controlled = player_controlled
 
-        wh = self._get_width_height()
-
-        left = int(x - wh[0] / 2)
-        top = int(y - wh[1] / 2)
-        super().__init__(left, top, wh[0], wh[1])
-
-    @overload
-    def __init__(self, path : str,
-                    width : int,
-                    height : int,
-
-                    x : float = 0, 
-                    y : float = 0,
-                    
-                    vx : float = 0,
-                    vy : float = 0,
-
-                    rotation : float = 0,
-                    rotation_vel : float = 0):
-        """
-            Initialize the actor and the hitbox using the image
-            and the width and height
-        """
-        self._path = path
-
-        self._vx = vx
-        self._vy = vy
-
-        self._rotation = rotation
-        self._rotation_vel = rotation_vel
-
-        left = int(x - width / 2)
-        top = int(y - height / 2)
-        super().__init__(left, top, width, height)
+        # If both the height and width are provided, use
+        # it to initialize the triangle
+        if (height != 0 and width != 0):
+            left = int(x - width / 2)
+            top = int(y - height / 2)
+            super().__init__(left, top, width, height)
+        
+        # If either height and with are 0, use the scale
+        else:
+            wh = self._get_width_height()
+            left = int(x - wh[0] / 2)
+            top = int(y - wh[1] / 2)
+            super().__init__(left, top, wh[0], wh[1])
     
     def _get_width_height(self):
         """
@@ -107,14 +89,14 @@ class Actor(pygame.Rect):
 
     # Getters and setters for x and y
     def get_x(self):
-        return super().x
+        return super().centerx
     
     def set_x(self, x):
         vx = x - super().centerx
         super().move(vx, 0)
     
     def get_y(self):
-        return super().y
+        return super().centery
     
     def set_y(self, y):
         vy = y - super().centery
@@ -158,12 +140,19 @@ class Actor(pygame.Rect):
     def set_rotation_vel(self, rotation_vel):
         self._rotation_vel = rotation_vel
     
+    # Getter and setter for the player_controlled bool
+    def player_controlled(self):
+        return self._player_controlled
+    
+    def set_player_controlled(self, player_controlled):
+        self._player_controlled = player_controlled
+
     # Move function
     def move_with_vel(self):
         """
             Simply add vx and vy onto x and y respectively
         """
-        super().move(self._vx, self._vy)
+        super().update(super().left + self._vx, super().top + self._vy, super().width, super().height)
     
     # # In case the hit box needs to be updated
     # def update_hitbox(self, image : pygame.Surface):

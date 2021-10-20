@@ -98,8 +98,7 @@ class Director(Action.Callback):
         for action in self._actions:
             if isinstance(action, OutputAction):
                 action.execute(self._actors, self._actions, self._clock, self)
-        self._actors.apply_changes()
-        self._actions.apply_changes()
+        self._apply_changes()
     
     def add_action(self, action):
         """Add the given action to the script.
@@ -107,7 +106,7 @@ class Director(Action.Callback):
         Args:
             action: Action, The action to add.
         """
-        self._actions.add(action)
+        self._actions.append(action)
 
     def remove_action(self, action):
         """Removes the given action from the script.
@@ -115,7 +114,7 @@ class Director(Action.Callback):
         Args:
             action (Action): The action to remove.
         """
-        self._removed_actions.add(action)
+        self._removed_actions.append(action)
     
     def add_actor(self, actor):
         """Adds the given actor to the cast.
@@ -123,7 +122,7 @@ class Director(Action.Callback):
         Args:
             actors: Actor, The actor to add.
         """
-        self._actors.add(actor)
+        self._actors.append(actor)
 
     def remove_actor(self, actor):
         """Marks the given actor for removal from the cast. Clients must call clean_actors to permanently remove actors from the cast. 
@@ -131,11 +130,14 @@ class Director(Action.Callback):
         Args:
             actor: Actor, The actor to remove.
         """
-        self._removed_actors.add(actor)
+        self._removed_actors.append(actor)
 
     def _apply_changes(self):
         """Permantely removes all of the dead actors and actions."""
-        self._actors -= self._removed_actors
+        for actor in self._removed_actors:
+            self._actors.remove(actor)
         self._removed_actors.clear()
-        self._actions -= self._removed_actions
+
+        for action in self._removed_actions:
+            self._actions.remove(action)
         self._removed_actions.clear()

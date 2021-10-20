@@ -1,19 +1,15 @@
-from genie_core.director import Director
-from genie_plugins.services.PygameKeyboardService import PygameKeyboardService
+from genie.director import Director
+from genie.services.PygameKeyboardService import PygameKeyboardService
 
-from genie_core.cast.actor import Actor
-from genie_core.cast.actors import Actors
-from genie_core.cast.Body import Body
-from genie_core.cast.Image import Image
+from genie.cast.actor import Actor
 
-from genie_core.script.action import Action
-from genie_core.script.actions import Actions
+from genie.script.action import Action
 
-from cast.PlayerControlledTrait import PlayerControlledTrait
-from script.DrawFrameAction import DrawFrameAction
-from script.HandleInputAction import HandleInputAction
-from script.MoveBodiesAction import MoveBodiesAction
-from script.SpawnAstroidsAction import SpawnAstroidsAction
+from astroid.script.DrawFrameAction import DrawFrameAction
+from astroid.script.HandleInputAction import HandleInputAction
+from astroid.script.MoveBodiesAction import MoveBodiesAction
+from astroid.script.SpawnAstroidsAction import SpawnAstroidsAction
+from genie.services.PygamePhysicsService import PygamePhysicsService
 
 W_SIZE = (500, 700)
 START_POSITION = 200, 250
@@ -26,35 +22,37 @@ def main():
     director = Director()
 
     # Create all the actors, including the player
-    cast = Actors()
+    cast = []
 
     # Create the player
-    player = Actor()
-    player.add_trait(Body(W_SIZE[0]/2 - SHIP_LENGTH/2, W_SIZE[1]/10 * 9, width = SHIP_LENGTH, height = SHIP_WIDTH))
-    player.add_trait(Image("assets/spaceship/spaceship_yellow.png", 0.12, 180))
-    player.add_trait(PlayerControlledTrait())
+    player = Actor(path="astroid/assets/spaceship/spaceship_yellow.png", 
+                    scale= 0.12,
+                    x = W_SIZE[0]/2,
+                    y = W_SIZE[1]/10 * 9,
+                    rotation=180,
+                    player_controlled=True)
 
     # Give actor(s) to the cast
-    cast.add_actor(player)
+    cast.append(player)
 
     # Create all the actions
-    script = Actions()
+    script = []
 
     # Create input actions
     handle_input = HandleInputAction(1, PygameKeyboardService())
 
     # Create update actions
-    move_bodies = MoveBodiesAction(1)
+    move_bodies = MoveBodiesAction(1, PygamePhysicsService())
     spawn_astroid = SpawnAstroidsAction(1, W_SIZE)
 
     # Create output actions
     draw_frame = DrawFrameAction(1, W_SIZE)
 
     # Give action(s) to the script
-    script.add_action(handle_input)
-    script.add_action(move_bodies)
-    script.add_action(spawn_astroid)
-    script.add_action(draw_frame)
+    script.append(handle_input)
+    script.append(move_bodies)
+    script.append(spawn_astroid)
+    script.append(draw_frame)
 
     # Give the cast and script to the dirrector by calling direct_scene.
     # direct_scene then runs the main game loop:

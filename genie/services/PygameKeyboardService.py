@@ -1,5 +1,5 @@
 import pygame
-from genie.services.constant import keys
+from genie.services.constants import keys
 
 class PygameKeyboardService():
     def __init__(self):
