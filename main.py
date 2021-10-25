@@ -11,7 +11,7 @@ from astroid.script.MoveActorsAction import MoveActorsAction
 from astroid.script.SpawnAstroidsAction import SpawnAstroidsAction
 from genie.services.PygamePhysicsService import PygamePhysicsService
 
-W_SIZE = (1000, 700)
+W_SIZE = (500, 700)
 START_POSITION = 200, 250
 SHIP_WIDTH = 40
 SHIP_LENGTH = 55
