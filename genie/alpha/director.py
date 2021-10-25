@@ -114,8 +114,7 @@ class Director(Action.Callback):
         Args:
             action (Action): The action to remove.
         """
-        if action not in self._removed_actions:
-            self._removed_actions.append(action)
+        self._removed_actions.append(action)
     
     def add_actor(self, actor):
         """Adds the given actor to the cast.
@@ -131,8 +130,7 @@ class Director(Action.Callback):
         Args:
             actor: Actor, The actor to remove.
         """
-        if (actor not in self._removed_actors):
-            self._removed_actors.append(actor)
+        self._removed_actors.append(actor)
 
     def _apply_changes(self):
         """Permantely removes all of the dead actors and actions."""
