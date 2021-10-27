@@ -1,10 +1,11 @@
+from astroid.cast.astroid import Astroid
 from genie.script.action import UpdateAction
 from genie.cast.actor import Actor
 import random
 
 from pygame import image
 
-SPAWN_INTERVAL = 2000
+SPAWN_INTERVAL = 5000
 
 class SpawnAstroidsAction(UpdateAction):
     def __init__(self, priority, window_size):
@@ -31,18 +32,18 @@ class SpawnAstroidsAction(UpdateAction):
 
             # Pick a random type of astroid: Small, Medium, Large
             as_type = random.randint(0,3)
-            image_path = ""
+            size : tuple = (0, 0)
             if as_type == 1:
-                image_path = "astroid/assets/astroids/astroid_large.png"
+                size = (75, 75)
             elif as_type == 2:
-                image_path = "astroid/assets/astroids/astroid_med.png"
+                size = (120, 120)
             else:
-                image_path = "astroid/assets/astroids/astroid_small.png"
+                size = (150, 150)
 
 
             # spawn an astroid
-            astroid = Actor(image_path, 1, x = start_pos_x, y = start_pos_y, vx = vel_x, vy = vel_y, rotation_vel=1)
-            actors.append(astroid)
+            astroid = Astroid("", width=size[0], height=size[1], x = start_pos_x, y = start_pos_y, vx = vel_x, vy = vel_y, rotation_vel=1)
+            callback.add_actor(astroid)
 
             # set last_spawn to current frame
             self._last_spawn = clock._frames

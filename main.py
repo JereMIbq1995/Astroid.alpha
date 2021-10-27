@@ -1,3 +1,4 @@
+from astroid.cast.ship import Ship
 from genie.director import Director
 from genie.services.PygameKeyboardService import PygameKeyboardService
 
@@ -25,8 +26,9 @@ def main():
     cast = []
 
     # Create the player
-    player = Actor(path="astroid/assets/spaceship/spaceship_yellow.png", 
-                    scale= 0.12,
+    player = Ship(path="", 
+                    width=50,
+                    height=30,
                     x = W_SIZE[0]/2,
                     y = W_SIZE[1]/10 * 9,
                     rotation=180,
