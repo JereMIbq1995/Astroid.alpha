@@ -13,8 +13,12 @@ class HandleShipMovementAction(InputAction):
         self._ship = None
     
     def _get_ship(self, actors):
+        """
+            Look through the actors and return the ship.
+            Returns None if Ship is not in the list.
+        """
         for actor in actors:
-            if isinstance(actor, Ship):
+            if(isinstance(actor, Ship)):
                 return actor
         return None
 
@@ -24,9 +28,9 @@ class HandleShipMovementAction(InputAction):
         """
         # Look for the ship among the actors if we haven't already known it
         self._ship = self._get_ship(actors)
-
-        # If the ship doesn't even exist, don't even bother check input
-        if self._ship != None:
+        
+        # Don't worry about it if ship doesn't exist
+        if (self._ship != None):
             # Check which keys are pressed and update the ship's velocity accordingly
             keys_state = self._keyboard_service.get_keys_state(keys.LEFT, keys.RIGHT, keys.DOWN, keys.UP)
             if keys_state[keys.LEFT]:
