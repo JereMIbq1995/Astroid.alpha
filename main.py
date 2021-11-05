@@ -1,16 +1,21 @@
-from astroid.cast.ship import Ship
+from astroid.script.HandleOffscreenAction import HandleOffscreenAction
 from genie.director import Director
 from genie.services.PygameKeyboardService import PygameKeyboardService
+from genie.services.PygamePhysicsService import PygamePhysicsService
+from genie.services.PygameScreenService import PygameScreenService
+from genie.services.PygameAudioService import PygameAudioService
 
 from genie.cast.actor import Actor
-
 from genie.script.action import Action
 
-from astroid.script.DrawFrameAction import DrawFrameAction
-from astroid.script.HandleInputAction import HandleInputAction
+from astroid.cast.ship import Ship
+from astroid.script.HandleQuitAction import HandleQuitAction
+from astroid.script.HandleShipMovementAction import HandleShipMovementAction
 from astroid.script.MoveActorsAction import MoveActorsAction
 from astroid.script.SpawnAstroidsAction import SpawnAstroidsAction
-from genie.services.PygamePhysicsService import PygamePhysicsService
+from astroid.script.DrawActorsAction import DrawActorsAction
+from astroid.script.UpdateScreenAction import UpdateScreenAction
+
 
 W_SIZE = (500, 700)
 START_POSITION = 200, 250
@@ -26,35 +31,38 @@ def main():
     cast = []
 
     # Create the player
-    player = Ship(path="", 
-                    width=50,
-                    height=30,
+    player = Ship(path="astroid/assets/spaceship/spaceship_yellow.png", 
+                    width = 70,
+                    height = 50,
                     x = W_SIZE[0]/2,
                     y = W_SIZE[1]/10 * 9,
-                    rotation=180,
-                    player_controlled=True)
+                    # y = mother_ship.get_top_left()[1] - 30,
+                    rotation=180)
 
     # Give actor(s) to the cast
     cast.append(player)
+
+    # Initialize services
+    keyboard_service = PygameKeyboardService()
+    physics_service = PygamePhysicsService()
+    screen_service = PygameScreenService(W_SIZE)
+    audio_service = PygameAudioService()
 
     # Create all the actions
     script = []
 
     # Create input actions
-    handle_input = HandleInputAction(1, PygameKeyboardService())
+    script.append(HandleQuitAction(1, keyboard_service))
+    script.append(HandleShipMovementAction(2, keyboard_service))
+    script.append(HandleOffscreenAction(2, W_SIZE))
 
     # Create update actions
-    move_bodies = MoveActorsAction(1, PygamePhysicsService())
-    spawn_astroid = SpawnAstroidsAction(1, W_SIZE)
+    script.append(MoveActorsAction(1, physics_service))
+    script.append(SpawnAstroidsAction(1, W_SIZE))
 
     # Create output actions
-    draw_frame = DrawFrameAction(1, W_SIZE)
-
-    # Give action(s) to the script
-    script.append(handle_input)
-    script.append(move_bodies)
-    script.append(spawn_astroid)
-    script.append(draw_frame)
+    script.append(DrawActorsAction(1, screen_service))
+    script.append(UpdateScreenAction(2, screen_service))
 
     # Give the cast and script to the dirrector by calling direct_scene.
     # direct_scene then runs the main game loop:
