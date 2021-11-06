@@ -52,3 +52,6 @@ Power-ups:
 
 Score:
 - Score is recorded on the top right of the screen
+
+Cosmetic:
+- objects are displayed on the screen using image instead of boxes
