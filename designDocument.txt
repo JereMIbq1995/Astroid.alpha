@@ -27,6 +27,7 @@ Astroids:
 Bullets:
 - A bullet is spawn when player hits SPACE.
 - There is an attack interval of 0.25 seconds between 2 consecutive shots
+- Each bullet deals 1 damage (-1hp) to an astroid
 
 Mothership:
 - Starts out with 50 HP
