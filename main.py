@@ -1,9 +1,6 @@
 from astroid.script.HandleOffscreenAction import HandleOffscreenAction
 from genie.director import Director
-from genie.services.PygameKeyboardService import PygameKeyboardService
-from genie.services.PygamePhysicsService import PygamePhysicsService
-from genie.services.PygameScreenService import PygameScreenService
-from genie.services.PygameAudioService import PygameAudioService
+from genie.services import *
 
 from genie.cast.actor import Actor
 from genie.script.action import Action
@@ -43,10 +40,23 @@ def main():
     cast.append(player)
 
     # Initialize services
-    keyboard_service = PygameKeyboardService()
-    physics_service = PygamePhysicsService()
-    screen_service = PygameScreenService(W_SIZE)
-    audio_service = PygameAudioService()
+    service_code = 0
+    while not (int(service_code) == 1 or int(service_code) == 2):
+        service_code = str(input("What service would you like to use? (Input 1 for Pygame or 2 for Raylib): ")).strip()
+        if not (int(service_code) == 1 or int(service_code) == 2):
+            print (service_code)
+            print("Incorrect input! Please try again!")
+
+    if int(service_code) == 1:
+        keyboard_service = PygameKeyboardService()
+        physics_service = PygamePhysicsService()
+        screen_service = PygameScreenService(W_SIZE)
+        audio_service = PygameAudioService()
+    elif int(service_code) == 2:
+        keyboard_service = RaylibKeyboardService()
+        physics_service = RaylibPhysicsService()
+        screen_service = RaylibScreenService(W_SIZE)
+        audio_service = RaylibAudioService()
 
     # Create all the actions
     script = []
