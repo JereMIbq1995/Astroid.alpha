@@ -2,16 +2,13 @@ from genie.script.action import InputAction
 from genie.services import mouse
 
 from astroid.cast.startGameButton import StartGameButton
-from astroid.script.SpawnAstroidsAction import SpawnAstroidsAction
-from astroid.script.HandleShipMovementAction import HandleShipMovementAction
 
 class HandleStartGameAction(InputAction):
-    def __init__(self, priority, mouse_service, physics_service, keyboard_service, window_size):
+    def __init__(self, priority, mouse_service, physics_service, actions):
         super().__init__(priority)
         self._mouse_service = mouse_service
         self._physics_service = physics_service
-        self._keyboard_service = keyboard_service
-        self._window_size = window_size
+        self._actions = actions
 
     def _get_start_button(self, actors):
         for actor in actors:
@@ -36,5 +33,5 @@ class HandleStartGameAction(InputAction):
             and self._physics_service.check_collision_point(start_button, mouse_pos):
                 callback.remove_actor(start_button)
                 callback.remove_action(self)
-                callback.add_action(HandleShipMovementAction(2, self._keyboard_service))
-                callback.add_action(SpawnAstroidsAction(1, self._window_size))
+                for action in self._actions:
+                    callback.add_action(action)

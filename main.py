@@ -75,13 +75,16 @@ def main():
 
     # Create input actions
     script.append(HandleQuitAction(1, keyboard_service))
-    script.append(HandleStartGameAction(2, mouse_service, physics_service, keyboard_service, W_SIZE))
-    # script.append(HandleShipMovementAction(2, keyboard_service))
     script.append(HandleOffscreenAction(2, W_SIZE))
+
+    # Add actions that must be added to the script when the game starts
+    startgame_actions = []
+    startgame_actions.append(HandleShipMovementAction(2, keyboard_service))
+    startgame_actions.append(SpawnAstroidsAction(1, W_SIZE))
+    script.append(HandleStartGameAction(2, mouse_service, physics_service, startgame_actions))
 
     # Create update actions
     script.append(MoveActorsAction(1, physics_service))
-    # script.append(SpawnAstroidsAction(1, W_SIZE))
 
     # Create output actions
     script.append(DrawActorsAction(1, screen_service))
