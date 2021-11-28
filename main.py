@@ -1,4 +1,5 @@
 from astroid.script.HandleOffscreenAction import HandleOffscreenAction
+from astroid.script.HandleStartGameAction import HandleStartGameAction
 from genie.director import Director
 from genie.services import *
 
@@ -6,6 +7,7 @@ from genie.cast.actor import Actor
 from genie.script.action import Action
 
 from astroid.cast.ship import Ship
+from astroid.cast.startGameButton import StartGameButton
 from astroid.script.HandleQuitAction import HandleQuitAction
 from astroid.script.HandleShipMovementAction import HandleShipMovementAction
 from astroid.script.MoveActorsAction import MoveActorsAction
@@ -36,8 +38,16 @@ def main():
                     # y = mother_ship.get_top_left()[1] - 30,
                     rotation=180)
 
+    # Start game button
+    start_button = StartGameButton(path="astroid/assets/others/start_button.png",
+                                    width = 305,
+                                    height = 113,
+                                    x = W_SIZE[0]/2,
+                                    y = W_SIZE[1]/2)
+
     # Give actor(s) to the cast
     cast.append(player)
+    cast.append(start_button)
 
     # Initialize services
     service_code = 0
@@ -51,11 +61,13 @@ def main():
         keyboard_service = PygameKeyboardService()
         physics_service = PygamePhysicsService()
         screen_service = PygameScreenService(W_SIZE)
+        mouse_service = PygameMouseService()
         audio_service = PygameAudioService()
     elif int(service_code) == 2:
         keyboard_service = RaylibKeyboardService()
         physics_service = RaylibPhysicsService()
         screen_service = RaylibScreenService(W_SIZE)
+        mouse_service = RaylibMouseService()
         audio_service = RaylibAudioService()
 
     # Create all the actions
@@ -63,12 +75,13 @@ def main():
 
     # Create input actions
     script.append(HandleQuitAction(1, keyboard_service))
-    script.append(HandleShipMovementAction(2, keyboard_service))
+    script.append(HandleStartGameAction(2, mouse_service, physics_service, keyboard_service, W_SIZE))
+    # script.append(HandleShipMovementAction(2, keyboard_service))
     script.append(HandleOffscreenAction(2, W_SIZE))
 
     # Create update actions
     script.append(MoveActorsAction(1, physics_service))
-    script.append(SpawnAstroidsAction(1, W_SIZE))
+    # script.append(SpawnAstroidsAction(1, W_SIZE))
 
     # Create output actions
     script.append(DrawActorsAction(1, screen_service))
