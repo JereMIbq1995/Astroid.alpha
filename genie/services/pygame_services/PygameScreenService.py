@@ -2,37 +2,34 @@ from typing import Tuple
 import pygame
 
 from genie.cast.actor import Actor
+from genie.cast.animatedActor import AnimatedActor
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0, 0)
 
 class PygameScreenService:
-    """
-        - add methods to the interface
-            i.e. ScreenService.DrawImages(Actors)
-            (this is in core)
-        - create the trait Image
-            i.e. image
-        - Implement the methods in concrete class
-            i.e. PygameScreenService
-            A. Loop Through Actors
-            If has Image trait:
-                convert image data to what pygame needs
-                use pygame to draw
-    """
-    def __init__(self, window_size):
+    def __init__(self, window_size, title: str = "", fps : int = 60):
+        """
+            This class provides you with all the tools needed to draw stuff
+        """
         if not pygame.get_init():
             pygame.init()
         self._images_cache = {}
+        pygame.display.set_caption(title)
         self._window = pygame.display.set_mode(window_size)
+        self._clock = pygame.time.Clock()
+        self._fps = fps
     
     def initialize(self):
+        """
+            Currently there's not really anything to put here.
+            Might change in the future
+        """
         pass
     
     def _load_image(self, actor : Actor, transform : bool = False):
         """
-            Takes in an actor that has 2 traits: Body and Image
-                and load the image of that Actor into the cache
+            Takes in an actor and load the image of that Actor into the cache
         """
         image_path = actor.get_path()
         image = pygame.image.load(image_path)
@@ -54,10 +51,26 @@ class PygameScreenService:
         """
         for actor in actors:
             self._load_image(actor)
+    
+    def set_fps(self, fps : int = 60):
+        """
+            Set the desired max fps. The game will try to
+            reach this fps if it can.
+        """
+        self._fps = fps
+
+    def begin_drawing(self):
+        """
+            Stuff that must be done before any drawing.
+            There's not really anything to do here for pygame
+        """
+        pass
 
     def fill_screen(self, color = WHITE):
         """
             Fill the screen with a certain color
+            This is actually pretty important to do before you draw
+                anything else.
         """
         self._window.fill(color)
 
@@ -65,7 +78,14 @@ class PygameScreenService:
         """
             Actually putting whatever was drawn on to the screen
         """
+        self._clock.tick(self._fps)
         pygame.display.update()
+    
+    def close_window(self):
+        """
+            Close the pygame window
+        """
+        pygame.quit()
 
     # def get_text_image(self):
     #     font = pygame.font.SysFont(font, font_size)
@@ -141,42 +161,62 @@ class PygameScreenService:
         """
         pygame.draw.circle(self._window, color, center, radius, width, draw_top_right, draw_top_left, draw_bottom_left, draw_bottom_right)
     
+    def draw_actor(self, actor : Actor):
+        """
+            This cool function:
+                - Takes in an actor as parameter
+                - Grabs the image path from the actor
+                - Grabs the width and height attributes of the actor (to scale it)
+                - Grabs the position of the actor
+                - Grabs the rotation attribute of the actor
+                - ...Then draw that image on the screen
+            
+            Note: the position provided by the actor is the center of the image drawn on the screen
+        """
+        actor_topleft = actor.get_top_left()
+        path = actor.get_path()
+        
+        try:
+            # Load image from cache or from file
+            image = self._images_cache[path] if path in self._images_cache.keys() else self._load_image(actor)
+
+            # Ensure that the image rotates when actor._rotation changes or when width and height change
+            transformed_image = pygame.transform.rotate(
+                    pygame.transform.scale(image, (actor.get_width(), actor.get_height())), 
+                    actor.get_rotation())
+            
+            # Shift the image upward and to the left to account for pygame's way to do rotation
+            offset_x = (transformed_image.get_width() - actor.get_width()) / 2
+            offset_y = (transformed_image.get_height() - actor.get_height()) / 2
+            image_topleft = (actor_topleft[0] - offset_x, actor_topleft[1] - offset_y)
+
+            # Draw the image with pygame
+            self._window.blit(transformed_image, image_topleft)
+
+            if isinstance(actor, AnimatedActor):
+                actor.set_next_frame()
+
+            # The following lines of code when un-comment show the hit box of the actor AND the boundary of the image (the 2 are different)
+            # pygame.draw.rect(self._window, (0,0,0), pygame.Rect(actor_topleft[0], actor_topleft[1], actor.get_width(), actor.get_height()), width = 5)
+            # pygame.draw.rect(self._window, (0,0,0), pygame.Rect(image_topleft[0], image_topleft[1], transformed_image.get_width(), transformed_image.get_height()), width = 5)
+        except:
+            # If it's blank then it's just an actor without an image and it's ok!
+            if path != "":
+                print("Something went wrong in draw_actor(). Most likely image failing to load!")
+
     def draw_actors(self, actors : list, lerp : float = 0):
         """
             Draw all the actors in the "actors" list in order:
                     First thing in the list gets drawn first.
 
             actors: actors that need to be drawn
-            lerp: linear interpolation
+            lerp: linear interpolation (don't worry about this for now)
         """
         for actor in actors:
-            actor_topleft = actor.get_top_left()
-            path = actor.get_path()
-            
-            try:
-                # Load image from cache or from file
-                image = self._images_cache[path] if path in self._images_cache.keys() else self._load_image(actor)
-
-                # Ensure that the image rotates when actor._rotation changes or when width and height change
-                transformed_image = pygame.transform.rotate(
-                        pygame.transform.scale(image, (actor.get_width(), actor.get_height())), 
-                        actor.get_rotation())
-                
-                # Shift the image upward and to the left to account for pygame's way to do rotation
-                offset_x = (transformed_image.get_width() - actor.get_width()) / 2
-                offset_y = (transformed_image.get_height() - actor.get_height()) / 2
-                image_topleft = (actor_topleft[0] - offset_x, actor_topleft[1] - offset_y)
-
-                # Draw the image with pygame
-                self._window.blit(transformed_image, image_topleft)
-
-                # The following lines of code when un-comment show the hit box of the actor AND the boundary of the image (the 2 are different)
-                # pygame.draw.rect(self._window, (0,0,0), pygame.Rect(actor_topleft[0], actor_topleft[1], actor.get_width(), actor.get_height()), width = 5)
-                # pygame.draw.rect(self._window, (0,0,0), pygame.Rect(image_topleft[0], image_topleft[1], transformed_image.get_width(), transformed_image.get_height()), width = 5)
-            except:
-                pass
-        
-        
+            self.draw_actor(actor)
 
     def release(self):
+        """
+            This might be used for something in the future
+        """
         pass

@@ -3,6 +3,7 @@ from raylib.colors import *
 import math
 
 from genie.cast.actor import Actor
+from genie.cast.animatedActor import AnimatedActor
 
 circle_sectors_dict = {
     # tr    tl    bl    br       : (start_angle, end_angle)
@@ -28,29 +29,20 @@ circle_sectors_dict = {
 
 class RaylibScreenService:
     """
-        - add methods to the interface
-            i.e. ScreenService.DrawImages(Actors)
-            (this is in core)
-        - create the trait Image
-            i.e. image
-        - Implement the methods in concrete class
-            i.e. PygameScreenService
-            A. Loop Through Actors
-            If has Image trait:
-                convert image data to what pygame needs
-                use pygame to draw
+        This class provides the tool you need to draw stuff
     """
-    def __init__(self, window_size, title : str = ""):
+    def __init__(self, window_size, title : str = "", fps : int = 60):
         # if not pyray.is_window_ready():
         #     print("window initialized!")
         init_window(window_size[0], window_size[1], title)
         self._textures_cache = {}
+        self.set_fps(fps)
     
     def initialize(self):
+        """
+            Nothing here for now...
+        """
         pass
-    
-    def set_fps(self, fps : int = 60):
-        set_target_fps(fps)
 
     def _load_texture(self, actor : Actor):
         """
@@ -73,18 +65,26 @@ class RaylibScreenService:
         """
         for actor in actors:
             self._load_texture(actor)
-
-    def fill_screen(self, color = WHITE):
+    
+    def set_fps(self, fps : int = 60):
         """
-            Fill the screen with a certain color
+            Set the desired fps. The framework will try to reach it
+            but there's no guarantee.
         """
-        clear_background(color)
+        self._fps = fps
+        set_target_fps(fps)
 
     def begin_drawing(self):
         """
             What to call before drawing anything in a frame
         """
         begin_drawing()
+
+    def fill_screen(self, color = WHITE):
+        """
+            Fill the screen with a certain color
+        """
+        clear_background(color)
 
     def update_screen(self):
         """
@@ -93,9 +93,15 @@ class RaylibScreenService:
         end_drawing()
 
     def close_window(self):
+        """
+            Close the window when the game is exited
+        """
         close_window()
 
     def is_quit(self):
+        """
+            Check to see if the X mark on the top right is clicked
+        """
         return window_should_close()
 
     # def get_text_image(self):
@@ -109,13 +115,12 @@ class RaylibScreenService:
             Draw the input text (str).
             Inputs:
                 - text: The text you want to draw
-                - font: The font you want to use (try to find out what's
-                        available on your system first)
+                - font: The font you want to use (This does not work for now...)
                 - font_size: default is 24
                 - color: An RGB tuple. (0,0,0) is BLACK, and (255,255,255) is WHITE
                         You can also pass a 4 entries tuple. the 4th entry determines opacity
                 - position: A tuple in the form of (x, y)
-                - antialias: Boolean. Default is True
+                - antialias: Boolean. Default is True (This does not work for now)
                 - position_center: A boolean that tells whether the position given should be
                                     the center of the text image or the top-left corner.
                         + True: treats the position as the center of the text image
@@ -206,7 +211,6 @@ class RaylibScreenService:
         try:
             # Load image from cache or from file
             texture = self._textures_cache[path] if path in self._textures_cache.keys() else self._load_texture(actor)
-            
             # width and height of the image
             frame_width = actor.get_width()
             frame_height = actor.get_height()
@@ -217,11 +221,15 @@ class RaylibScreenService:
                             Vector2(frame_width/2, frame_height/2),
                             actor.get_rotation(),
                             WHITE)
-
+                            
+            if isinstance(actor, AnimatedActor):
+                actor.set_next_frame()
+                
             # This line of code when un-commented shows the hit box of the actor
             # draw_rectangle_lines(int(actor.get_top_left()[0]), int(actor.get_top_left()[1]), int(actor.get_width()), int(actor.get_height()),BLACK)
         except:
-            print("Something went wrong in RaylibScreenService.draw_actor()! Most likely path not found!")
+            print("Something went wrong in RaylibScreenService.draw_actor()! Maybe path is not found!")
+            print(path)
 
     def draw_actors(self, actors : list, lerp : float = 0):
         """
@@ -229,10 +237,13 @@ class RaylibScreenService:
                     First thing in the list gets drawn first.
 
             actors: actors that need to be drawn
-            lerp: linear interpolation
+            lerp: linear interpolation (don't worry about this)
         """
         for actor in actors:
             self.draw_actor(actor)
         
     def release(self):
+        """
+            This might be used in the future
+        """
         pass
